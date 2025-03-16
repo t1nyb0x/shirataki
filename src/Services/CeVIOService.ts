@@ -1,3 +1,6 @@
+import { CeVIOServicePort } from "@/ports/CeVIOServicePort";
+import { injectable } from "tsyringe";
+
 interface ICevioService {
     StartHost(waitForReady: boolean): boolean;
     CloseHost(timeout: number): void;
@@ -6,32 +9,39 @@ interface ICevioService {
 interface ITalker {
     Cast: string;
     Speak(text: string): any;
+    OutputWaveToFile(text: string, path: string): boolean;
 }
 
-class CeVIO {
+@injectable()
+export class CeVIOService implements CeVIOServicePort {
     private service: ICevioService;
     private talker: ITalker;
 
-    constructor(cast: string) {
+    constructor() {
         require("winax");
         this.service = new ActiveXObject("CeVIO.Talk.RemoteService2.ServiceControl2V40") as ICevioService;
         this.talker = new ActiveXObject("CeVIO.Talk.RemoteService2.Talker2V40") as ITalker;
 
         this.service.StartHost(false);
-        this.talker.Cast = cast;
     }
 
-    speak(text: string) {
+    speak(cast: string, text: string) {
+        this.talker.Cast = cast;
         console.log(`📢 Speaking: ${text}`);
         const state = this.talker.Speak(text);
         (state as any).Wait();
+        return;
+    }
+
+    generateWav(cast: string, text: string, path: string): boolean {
+        this.talker.Cast = cast;
+        const result = this.talker.OutputWaveToFile(text, path);
+        console.log(result);
+        console.log(`Generate Wav File: ${path}`);
+        return result;
     }
 
     close() {
         this.service.CloseHost(0);
     }
 }
-
-const cevio = new CeVIO("花隈千冬");
-cevio.speak("こんにちは、花隈千冬です。");
-cevio.close();
