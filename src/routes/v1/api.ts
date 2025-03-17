@@ -11,7 +11,7 @@ router.get("/hello", (_req: Request, res: Response) => {
 
 router.get("/sample", (_req: Request, res: Response): any => {
     const voiceController = container.resolve(VoiceController);
-    const response = voiceController.createSampleVoice();
+    const response = voiceController.createVoice();
     return res.status(200).send(response);
 });
 export default router;

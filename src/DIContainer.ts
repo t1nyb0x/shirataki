@@ -1,9 +1,9 @@
 import { container } from "tsyringe";
-import { SampleVoiceUseCase } from "@/usecase/SampleVoiceUseCase";
-import { CeVIOService } from "@/Services/CeVIOService";
-import { SampleVoiceUseCasePort } from "@/ports/input/VoiceUseCasePort";
+import { VoiceUseCase } from "@/usecase/VoiceUseCase";
+import { CeVIOService } from "@/services/CeVIOService";
+import { VoiceUseCasePort } from "@/ports/input/VoiceUseCasePort";
 import { CeVIOServicePort } from "@/ports/CeVIOServicePort";
 
-container.registerSingleton<SampleVoiceUseCasePort>("SampleVoiceUseCase", SampleVoiceUseCase);
+container.registerSingleton<VoiceUseCasePort>("VoiceUseCase", VoiceUseCase);
 
 container.registerSingleton<CeVIOServicePort>("CeVIOService", CeVIOService);

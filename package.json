@@ -18,7 +18,7 @@
     "start": "node --env-file=.env ./dist/server.js",
     "debug": "tsc --noEmit && tsx watch --env-file=.env src/server.ts",
     "test": "jest",
-    "build": "tsc",
+    "build": "tsc && tsc-alias",
     "lint": "npx oxlint@latest",
     "lint:fix": "npx oxlint@latest --fix",
     "prepare": "husky"
@@ -54,6 +54,7 @@
     "oxlint": "^0.15.15",
     "prettier": "^3.5.3",
     "ts-jest": "^29.2.6",
+    "tsc-alias": "^1.8.11",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2"
   }

@@ -1,9 +1,9 @@
 import { CeVIOServicePort } from "@/ports/CeVIOServicePort";
-import { SampleVoiceUseCasePort } from "@/ports/input/VoiceUseCasePort";
+import { VoiceUseCasePort } from "@/ports/input/VoiceUseCasePort";
 import { inject, injectable } from "tsyringe";
 
 @injectable()
-export class SampleVoiceUseCase implements SampleVoiceUseCasePort {
+export class VoiceUseCase implements VoiceUseCasePort {
     constructor(@inject("CeVIOService") private cevioService: CeVIOServicePort) {}
 
     textToVoice(cast: string, text: string, path: string): boolean {
