@@ -36,10 +36,11 @@ export class CeVIOService implements CeVIOServicePort {
     generateWav(cast: string, text: string, path: string): boolean {
         this.talker.Cast = cast;
         const result = this.talker.OutputWaveToFile(text, path);
-        console.log(result);
         console.log(`Generate Wav File: ${path}`);
         return result;
     }
+
+    // setPitch()
 
     close() {
         this.service.CloseHost(0);

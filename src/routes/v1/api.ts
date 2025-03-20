@@ -1,17 +1,30 @@
 import { VoiceController } from "@/controllers/VoiceController";
 import { Router, Request, Response } from "express";
 import { container } from "tsyringe";
+import fs from "fs";
+import path from "path";
 
 const router = Router();
 
-// `GET /api/hello` エンドポイント
-router.get("/hello", (_req: Request, res: Response) => {
-    res.json({ message: "こんにちは、鹿さん！🎤 TypeScriptでAPI作ったよ！" });
+router.get("/sample", (req: Request, res: Response): any => {
+    const voiceController = container.resolve(VoiceController);
+    const response = voiceController.createVoice({ cast: req.body.cast, text: `こんにちは、${req.body.cast}です。` });
+    return res.status(200).send(response);
 });
 
-router.get("/sample", (_req: Request, res: Response): any => {
+router.post("/createVoice", async (req: Request, res: Response): Promise<any> => {
     const voiceController = container.resolve(VoiceController);
-    const response = voiceController.createVoice();
-    return res.status(200).send(response);
+    const response = await voiceController.createVoice(req.body);
+    const file = path.resolve(response!.outputPath);
+
+    res.setHeader("Content-Type", "audio/wav");
+    const fileStream = fs.createReadStream(file);
+
+    fileStream.on("error", (err) => {
+        console.error("エラー:", err.message);
+    });
+    fileStream.pipe(res);
+    // TODO: wav出力とストリーム返却とで分ける
+    // return res.status(200).send(response);
 });
 export default router;
