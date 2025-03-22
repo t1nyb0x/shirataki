@@ -14,6 +14,7 @@ export class VoiceController {
 
         try {
             await fs.mkdir(exportPath, { recursive: true });
+            // this.VoiceUseCase.setVoiceControl(body.voiceControl);
             const response = this.VoiceUseCase.textToVoice(body.cast, body.text, exportPath + "\\output.wav");
             return {
                 processResult: response,
@@ -22,5 +23,9 @@ export class VoiceController {
         } catch (error) {
             console.error(error);
         }
+    }
+
+    getEmotionName(cast: string): string[] {
+        return this.VoiceUseCase.getEmotionName(cast);
     }
 }

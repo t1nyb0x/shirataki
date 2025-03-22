@@ -27,4 +27,12 @@ router.post("/createVoice", async (req: Request, res: Response): Promise<any> =>
     // TODO: wav出力とストリーム返却とで分ける
     // return res.status(200).send(response);
 });
+
+router.get("/getEmotionName", (req: Request, res: Response): any => {
+    const voiceController = container.resolve(VoiceController);
+    if (!req.query.cast) return res.status(400).send("キャスト名をクエリに入力してください");
+    const cast = req.query.cast as string;
+    const response = voiceController.getEmotionName(cast);
+    return res.status(200).send(response);
+});
 export default router;
