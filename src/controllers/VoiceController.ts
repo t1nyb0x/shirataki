@@ -8,13 +8,19 @@ import fs from "fs/promises";
 export class VoiceController {
     constructor(@inject("VoiceUseCase") private VoiceUseCase: VoiceUseCasePort) {}
 
-    async createVoice(body: { cast: string; text: string }) {
+    async createVoice(body: {
+        cast: string;
+        text: string;
+        voiceControl: { volume?: number; speed?: number; tone?: number; toneScale?: number; alpha?: number };
+    }) {
         const exportDir = process.env.OUTPUT_PATH ?? path.join(__dirname, "..", "..", "tmp");
         const exportPath = exportDir + "\\" + randomUUID();
 
         try {
             await fs.mkdir(exportPath, { recursive: true });
-            // this.VoiceUseCase.setVoiceControl(body.voiceControl);
+            // 音声の調節を行う
+            this.VoiceUseCase.setVoiceControl(body.cast, body.voiceControl);
+            // テキストから音声を作成
             const response = this.VoiceUseCase.textToVoice(body.cast, body.text, exportPath + "\\output.wav");
             return {
                 processResult: response,

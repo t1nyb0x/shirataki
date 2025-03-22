@@ -6,13 +6,13 @@ import path from "path";
 
 const router = Router();
 
-router.get("/sample", (req: Request, res: Response): any => {
+router.post("/voice/sample", (req: Request, res: Response): any => {
     const voiceController = container.resolve(VoiceController);
     const response = voiceController.createVoice({ cast: req.body.cast, text: `こんにちは、${req.body.cast}です。` });
     return res.status(200).send(response);
 });
 
-router.post("/createVoice", async (req: Request, res: Response): Promise<any> => {
+router.post("/voice/create", async (req: Request, res: Response): Promise<any> => {
     const voiceController = container.resolve(VoiceController);
     const response = await voiceController.createVoice(req.body);
     const file = path.resolve(response!.outputPath);
@@ -28,7 +28,7 @@ router.post("/createVoice", async (req: Request, res: Response): Promise<any> =>
     // return res.status(200).send(response);
 });
 
-router.get("/getEmotionName", (req: Request, res: Response): any => {
+router.get("/voice/emotionName", (req: Request, res: Response): any => {
     const voiceController = container.resolve(VoiceController);
     if (!req.query.cast) return res.status(400).send("キャスト名をクエリに入力してください");
     const cast = req.query.cast as string;

@@ -65,7 +65,8 @@ export class CeVIOService implements CeVIOServicePort {
      * @param alpha 音質
      * @returns
      */
-    setParam(volume: number, speed: number, tone: number, toneScale: number, alpha: number) {
+    setParam(cast: string, volume: number, speed: number, tone: number, toneScale: number, alpha: number) {
+        this.talker.Cast = cast;
         this.talker.Volume = volume;
         this.talker.Speed = speed;
         this.talker.Tone = tone;
