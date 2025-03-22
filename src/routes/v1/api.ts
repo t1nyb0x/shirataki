@@ -8,7 +8,11 @@ const router = Router();
 
 router.post("/voice/sample", (req: Request, res: Response): any => {
     const voiceController = container.resolve(VoiceController);
-    const response = voiceController.createVoice({ cast: req.body.cast, text: `こんにちは、${req.body.cast}です。` });
+    const response = voiceController.createVoice({
+        cast: req.body.cast,
+        text: `こんにちは、${req.body.cast}です。`,
+        voiceControl: {},
+    });
     return res.status(200).send(response);
 });
 
