@@ -1,4 +1,4 @@
-import { CeVIOServicePort } from "@/ports/CeVIOServicePort";
+import { CeVIOServicePort } from "@/ports/output/CeVIOServicePort";
 import { VoiceUseCasePort } from "@/ports/input/VoiceUseCasePort";
 import { inject, injectable } from "tsyringe";
 

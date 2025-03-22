@@ -1,4 +1,4 @@
-import { CeVIOServicePort } from "@/ports/CeVIOServicePort";
+import { CeVIOServicePort } from "@/ports/output/CeVIOServicePort";
 import { injectable } from "tsyringe";
 
 interface ICevioService {
