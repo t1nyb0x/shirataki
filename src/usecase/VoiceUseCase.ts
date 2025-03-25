@@ -6,6 +6,8 @@ import { inject, injectable } from "tsyringe";
 export class VoiceUseCase implements VoiceUseCasePort {
     constructor(@inject("CeVIOService") private cevioService: CeVIOServicePort) {}
 
+    private static readonly DEFAULT_CONTROL_VALUE = 50;
+
     setVoiceControl(
         cast: string,
         control: {
@@ -16,17 +18,17 @@ export class VoiceUseCase implements VoiceUseCasePort {
             alpha?: number;
         }
     ): void {
-        return this.cevioService.setParam(
-            cast,
-            control.volume ?? 50,
-            control.speed ?? 50,
-            control.tone ?? 50,
-            control.toneScale ?? 50,
-            control.alpha ?? 50
-        );
+        const params = {
+            volume: control.volume ?? VoiceUseCase.DEFAULT_CONTROL_VALUE,
+            speed: control.speed ?? VoiceUseCase.DEFAULT_CONTROL_VALUE,
+            tone: control.tone ?? VoiceUseCase.DEFAULT_CONTROL_VALUE,
+            toneScale: control.toneScale ?? VoiceUseCase.DEFAULT_CONTROL_VALUE,
+            alpha: control.alpha ?? VoiceUseCase.DEFAULT_CONTROL_VALUE,
+        };
+        return this.cevioService.setParam(cast, params);
     }
 
-    getEmotionName(cast: string) {
+    getEmotionName(cast: string): string[] {
         const res = this.cevioService.getEmotionName(cast);
         return res;
     }

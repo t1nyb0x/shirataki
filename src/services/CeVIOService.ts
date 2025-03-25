@@ -1,4 +1,4 @@
-import { CeVIOServicePort } from "@/ports/output/CeVIOServicePort";
+import { CeVIOServicePort, VoiceControlParams } from "@/ports/output/CeVIOServicePort";
 import { injectable } from "tsyringe";
 
 interface ICevioService {
@@ -32,8 +32,12 @@ export class CeVIOService implements CeVIOServicePort {
         this.service.StartHost(false);
     }
 
-    speak(cast: string, text: string) {
+    private setCast(cast: string) {
         this.talker.Cast = cast;
+    }
+
+    speak(cast: string, text: string) {
+        this.setCast(cast);
         console.log(`📢 Speaking: ${text}`);
         const state = this.talker.Speak(text);
         (state as any).Wait();
@@ -41,7 +45,7 @@ export class CeVIOService implements CeVIOServicePort {
     }
 
     generateWav(cast: string, text: string, path: string): boolean {
-        this.talker.Cast = cast;
+        this.setCast(cast);
 
         const result = this.talker.OutputWaveToFile(text, path);
 
@@ -65,18 +69,17 @@ export class CeVIOService implements CeVIOServicePort {
      * @param alpha 音質
      * @returns
      */
-    setParam(cast: string, volume: number, speed: number, tone: number, toneScale: number, alpha: number) {
-        this.talker.Cast = cast;
-        this.talker.Volume = volume;
-        this.talker.Speed = speed;
-        this.talker.Tone = tone;
-        this.talker.ToneScale = toneScale;
-        this.talker.Alpha = alpha;
-        return;
+    setParam(cast: string, params: VoiceControlParams) {
+        this.setCast(cast);
+        this.talker.Volume = params.volume;
+        this.talker.Speed = params.speed;
+        this.talker.Tone = params.tone;
+        this.talker.ToneScale = params.toneScale;
+        this.talker.Alpha = params.alpha;
     }
 
     getEmotionName(cast: string): string[] {
-        this.talker.Cast = cast;
+        this.setCast(cast);
         const components = this.talker.Components;
         const count = components.Length;
         let emotionName: string[] = [];
