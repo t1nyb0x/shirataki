@@ -11,5 +11,6 @@ export interface CeVIOServicePort {
     generateWav(cast: string, text: string, path: string): boolean;
     setParam(cast: string, params: VoiceControlParams): void;
     getEmotionName(cast: string): string[];
+    setEmotion(cast: string, emotionName: string, value: number): void;
     close(): void;
 }

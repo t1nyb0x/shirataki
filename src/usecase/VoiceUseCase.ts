@@ -36,4 +36,8 @@ export class VoiceUseCase implements VoiceUseCasePort {
     textToVoice(cast: string, text: string, path: string): boolean {
         return this.cevioService.generateWav(cast, text, path);
     }
+
+    setEmotion(cast: string, emotionName: string, value: number): void {
+        this.cevioService.setEmotion(cast, emotionName, value);
+    }
 }

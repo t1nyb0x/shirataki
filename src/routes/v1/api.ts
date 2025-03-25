@@ -19,7 +19,13 @@ router.post("/voice/sample", (req: Request, res: Response): any => {
 router.post("/voice/create", async (req: Request, res: Response): Promise<any> => {
     const voiceController = container.resolve(VoiceController);
     const response = await voiceController.createVoice(req.body);
-    const file = path.resolve(response!.outputPath);
+    if (response?.error) {
+        return res.status(400).send({ error: response.error });
+    }
+    if (!response?.outputPath) {
+        return res.status(500).send({ error: "出力パスの生成に失敗しました" });
+    }
+    const file = path.resolve(response.outputPath);
 
     res.setHeader("Content-Type", "audio/wav");
     const fileStream = fs.createReadStream(file);

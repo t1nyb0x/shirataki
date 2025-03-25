@@ -11,4 +11,5 @@ export interface VoiceUseCasePort {
     ): void;
     getEmotionName(cast: string): string[];
     textToVoice(cast: string, text: string, path: string): boolean;
+    setEmotion(cast: string, emotionName: string, value: number): void;
 }

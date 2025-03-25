@@ -6,6 +6,11 @@ interface ICevioService {
     CloseHost(timeout: number): void;
 }
 
+interface IComponent {
+    Name: string;
+    Value: number;
+}
+
 interface ITalker {
     Cast: string;
     Speak(text: string): any;
@@ -15,7 +20,11 @@ interface ITalker {
     Tone: number;
     ToneScale: number;
     Alpha: number;
-    Components: any;
+    Components: {
+        Length: number;
+        At(index: number): IComponent;
+        ByName(name: string): IComponent;
+    };
     AvailableCasts: any;
 }
 
@@ -56,6 +65,13 @@ export class CeVIOService implements CeVIOServicePort {
     トーン: ${this.talker.Tone}
     抑揚: ${this.talker.ToneScale}
     声質: ${this.talker.Alpha}`);
+
+        const components = this.talker.Components;
+        const count = components.Length;
+        for (let i = 0; i < count; i++) {
+            const comp = components.At(i);
+            console.log(comp.Name, ": ", comp.Value);
+        }
         console.log(`Generate Wav File: ${path}`);
         return result;
     }
@@ -90,7 +106,17 @@ export class CeVIOService implements CeVIOServicePort {
         return emotionName;
     }
 
-    setEmotion() {}
+    setEmotion(cast: string, emotionName: string, value: number) {
+        this.setCast(cast);
+        try {
+            const component = this.talker.Components.ByName(emotionName);
+            component.Value = value;
+        } catch (error) {
+            throw new Error(
+                `Failed to set emotion: ${emotionName}. ${error instanceof Error ? error.message : String(error)}`
+            );
+        }
+    }
 
     close() {
         this.service.CloseHost(0);
