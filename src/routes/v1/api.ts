@@ -23,7 +23,7 @@ router.post("/voice/create", async (req: Request, res: Response): Promise<any> =
         return res.status(400).send({ error: response.error });
     }
     if (!response?.outputPath) {
-        return res.status(500).send({ error: "出力パスの生成に失敗しました" });
+        return res.status(500).send({ error: "出力生成に失敗しました" });
     }
     const file = path.resolve(response.outputPath);
 
