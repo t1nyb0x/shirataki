@@ -45,12 +45,12 @@ export class CeVIOService implements CeVIOServicePort {
         this.talker.Cast = cast;
     }
 
-    speak(cast: string, text: string) {
+    speak(cast: string, text: string): boolean {
         this.setCast(cast);
         console.log(`📢 Speaking: ${text}`);
         const state = this.talker.Speak(text);
         (state as any).Wait();
-        return;
+        return state.IsSucceeded;
     }
 
     generateWav(cast: string, text: string, path: string): boolean {

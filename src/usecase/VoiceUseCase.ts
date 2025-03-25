@@ -40,4 +40,8 @@ export class VoiceUseCase implements VoiceUseCasePort {
     setEmotion(cast: string, emotionName: string, value: number): void {
         this.cevioService.setEmotion(cast, emotionName, value);
     }
+
+    speak(cast: string, text: string): boolean {
+        return this.cevioService.speak(cast, text);
+    }
 }

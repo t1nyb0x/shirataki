@@ -7,7 +7,7 @@ export interface VoiceControlParams {
 }
 
 export interface CeVIOServicePort {
-    speak(cast: string, text: string): void;
+    speak(cast: string, text: string): boolean;
     generateWav(cast: string, text: string, path: string): boolean;
     setParam(cast: string, params: VoiceControlParams): void;
     getEmotionName(cast: string): string[];
