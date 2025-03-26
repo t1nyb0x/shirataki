@@ -27,6 +27,9 @@ class MockCeVIOServicePort implements CeVIOServicePort {
     close(): void {
         throw new Error("Method not implemented.");
     }
+    getAvailableCasts(): string[] {
+        return ["花隈千冬", "弦巻マキ"]; // モック用の実装
+    }
 }
 
 describe("VoiceUseCase", () => {

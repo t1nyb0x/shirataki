@@ -6,6 +6,13 @@ import { ValidationError } from "@/errors/AppError";
 export class VoiceValidator {
     constructor(@inject("VoiceUseCase") private voiceUseCase: VoiceUseCasePort) {}
 
+    async validateCast(cast: string): Promise<void> {
+        const availableCasts = await this.voiceUseCase.getAvailableCasts();
+        if (!availableCasts.includes(cast)) {
+            throw new ValidationError(`無効なキャストです: ${cast}　有効なキャスト: ${availableCasts.join(", ")}`);
+        }
+    }
+
     async validateEmotions(cast: string, emotions?: { name: string; value: number }[]): Promise<void> {
         if (!emotions) return;
 
@@ -13,7 +20,7 @@ export class VoiceValidator {
         for (const emotion of emotions) {
             if (!availableEmotions.includes(emotion.name)) {
                 throw new ValidationError(
-                    `無効な感情名です: ${emotion.name}。有効な感情: ${availableEmotions.join(", ")}`
+                    `無効な感情名です: ${emotion.name}　有効な感情: ${availableEmotions.join(", ")}`
                 );
             }
             if (emotion.value < 0 || emotion.value > 100) {

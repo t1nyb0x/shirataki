@@ -25,12 +25,19 @@ class MockVoiceUseCase implements VoiceUseCasePort {
     speak(cast: string, text: string): boolean {
         return true; // モック用の実装
     }
+    getAvailableCasts(): string[] {
+        return ["花隈千冬", "弦巻マキ"]; // モック用の実装
+    }
 }
 
 // モック用のVoiceValidator実装
 class MockVoiceValidator extends VoiceValidator {
     constructor() {
         super(new MockVoiceUseCase());
+    }
+
+    async validateCast(cast: string): Promise<void> {
+        return;
     }
 
     async validateEmotions(cast: string, emotions?: { name: string; value: number }[]): Promise<void> {
@@ -62,6 +69,7 @@ describe("VoiceController", () => {
 
     describe("createVoice", () => {
         it("should return voice file path when successful", async () => {
+            jest.spyOn(mockVoiceValidator, "validateCast").mockResolvedValue(undefined);
             jest.spyOn(mockVoiceValidator, "validateEmotions").mockResolvedValue(undefined);
             jest.spyOn(mockVoiceUseCase, "textToVoice").mockReturnValue(true);
 

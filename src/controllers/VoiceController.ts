@@ -20,6 +20,8 @@ export class VoiceController {
         emotions?: { name: string; value: number }[];
     }) {
         try {
+            // キャストのバリデーション
+            await this.voiceValidator.validateCast(body.cast);
             // 感情パラメータのバリデーション
             await this.voiceValidator.validateEmotions(body.cast, body.emotions);
         } catch (error) {

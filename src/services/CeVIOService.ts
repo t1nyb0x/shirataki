@@ -32,66 +32,77 @@ interface ITalker {
 export class CeVIOService implements CeVIOServicePort {
     private service: ICevioService;
     private talker: ITalker;
+    private currentCast: string = "";
 
     constructor() {
         require("winax");
         this.service = new ActiveXObject("CeVIO.Talk.RemoteService2.ServiceControl2V40") as ICevioService;
         this.talker = new ActiveXObject("CeVIO.Talk.RemoteService2.Talker2V40") as ITalker;
-
         this.service.StartHost(false);
     }
 
     private setCast(cast: string) {
-        this.talker.Cast = cast;
+        if (this.currentCast !== cast) {
+            this.talker.Cast = cast;
+            this.currentCast = cast;
+        }
+    }
+
+    private logVoiceParameters() {
+        console.log(`
+現在のキャスト: ${this.talker.Cast}
+音量: ${this.talker.Volume}
+話す速さ: ${this.talker.Speed}
+トーン: ${this.talker.Tone}
+抑揚: ${this.talker.ToneScale}
+声質: ${this.talker.Alpha}`);
+
+        const components = this.talker.Components;
+        for (let i = 0; i < components.Length; i++) {
+            const comp = components.At(i);
+            console.log(`${comp.Name}: ${comp.Value}`);
+        }
     }
 
     speak(cast: string, text: string): boolean {
         this.setCast(cast);
         console.log(`📢 Speaking: ${text}`);
-        const state = this.talker.Speak(text);
-        (state as any).Wait();
-        return state.IsSucceeded;
+
+        try {
+            const state = this.talker.Speak(text);
+            (state as any).Wait();
+            return state.IsSucceeded;
+        } catch (error) {
+            console.error(`音声生成エラー: ${error instanceof Error ? error.message : String(error)}`);
+            return false;
+        }
     }
 
     generateWav(cast: string, text: string, path: string): boolean {
         this.setCast(cast);
 
-        const result = this.talker.OutputWaveToFile(text, path);
-
-        console.log(this.talker.Cast);
-
-        console.log(`音量: ${this.talker.Volume}
-    話す速さ: ${this.talker.Speed}
-    トーン: ${this.talker.Tone}
-    抑揚: ${this.talker.ToneScale}
-    声質: ${this.talker.Alpha}`);
-
-        const components = this.talker.Components;
-        const count = components.Length;
-        for (let i = 0; i < count; i++) {
-            const comp = components.At(i);
-            console.log(comp.Name, ": ", comp.Value);
+        try {
+            const result = this.talker.OutputWaveToFile(text, path);
+            this.logVoiceParameters();
+            console.log(`生成されたWAVファイル: ${path}`);
+            return result;
+        } catch (error) {
+            console.error(`WAV生成エラー: ${error instanceof Error ? error.message : String(error)}`);
+            return false;
         }
-        console.log(`Generate Wav File: ${path}`);
-        return result;
     }
 
-    /**
-     * 声のパラメータを設定する
-     * @param volume 音量
-     * @param speed 読む速さ
-     * @param tone トーン
-     * @param toneScale 抑揚
-     * @param alpha 音質
-     * @returns
-     */
     setParam(cast: string, params: VoiceControlParams) {
         this.setCast(cast);
-        this.talker.Volume = params.volume;
-        this.talker.Speed = params.speed;
-        this.talker.Tone = params.tone;
-        this.talker.ToneScale = params.toneScale;
-        this.talker.Alpha = params.alpha;
+        const { volume, speed, tone, toneScale, alpha } = params;
+
+        this.talker.Volume = volume;
+        this.talker.Speed = speed;
+        this.talker.Tone = tone;
+        this.talker.ToneScale = toneScale;
+        this.talker.Alpha = alpha;
+
+        console.log(`声のパラメータを更新: ${JSON.stringify(params)}`);
     }
 
     getEmotionName(cast: string): string[] {
@@ -116,6 +127,15 @@ export class CeVIOService implements CeVIOServicePort {
                 `Failed to set emotion: ${emotionName}. ${error instanceof Error ? error.message : String(error)}`
             );
         }
+    }
+
+    getAvailableCasts(): string[] {
+        const casts: string[] = [];
+        const count = this.talker.AvailableCasts.Length;
+        for (let i = 0; i < count; i++) {
+            casts.push(this.talker.AvailableCasts.At(i));
+        }
+        return casts;
     }
 
     close() {

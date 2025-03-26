@@ -44,4 +44,8 @@ export class VoiceUseCase implements VoiceUseCasePort {
     speak(cast: string, text: string): boolean {
         return this.cevioService.speak(cast, text);
     }
+
+    getAvailableCasts(): string[] {
+        return this.cevioService.getAvailableCasts();
+    }
 }
