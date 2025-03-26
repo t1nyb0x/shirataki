@@ -38,6 +38,8 @@
     }
   },
   "dependencies": {
+    "axios": "^1.8.4",
+    "compare-versions": "^6.1.1",
     "express": "^4.21.2",
     "log4js": "^6.9.1",
     "reflect-metadata": "^0.2.2",
