@@ -112,4 +112,15 @@ describe("VoiceController", () => {
             expect(result).toEqual(mockEmotions);
         });
     });
+
+    describe("getAvailableCasts", () => {
+        it("should return available casts", () => {
+            const mockCasts = ["花隈千冬", "弦巻マキ"];
+            jest.spyOn(mockVoiceUseCase, "getAvailableCasts").mockReturnValue(mockCasts);
+
+            const result = voiceController.getAvailableCasts();
+
+            expect(result).toEqual(mockCasts);
+        });
+    });
 });

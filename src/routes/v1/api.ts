@@ -45,4 +45,10 @@ router.get("/voice/emotionName", (req: Request, res: Response): any => {
     const response = voiceController.getEmotionName(cast);
     return res.status(200).send(response);
 });
+
+router.get("/voice/casts", (req: Request, res: Response): any => {
+    const voiceController = container.resolve(VoiceController);
+    const response = voiceController.getAvailableCasts();
+    return res.status(200).send(response);
+});
 export default router;

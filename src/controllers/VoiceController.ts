@@ -9,7 +9,7 @@ import { ValidationError } from "@/errors/AppError";
 @injectable()
 export class VoiceController {
     constructor(
-        @inject("VoiceUseCase") private VoiceUseCase: VoiceUseCasePort,
+        @inject("VoiceUseCase") private voiceUseCase: VoiceUseCasePort,
         @inject("VoiceValidator") private voiceValidator: VoiceValidator
     ) {}
 
@@ -39,17 +39,17 @@ export class VoiceController {
         try {
             await fs.mkdir(exportPath, { recursive: true });
             // 音声の調節を行う
-            this.VoiceUseCase.setVoiceControl(body.cast, body.voiceControl);
+            this.voiceUseCase.setVoiceControl(body.cast, body.voiceControl);
 
             // 感情パラメータを設定
             if (body.emotions) {
                 for (const emotion of body.emotions) {
-                    this.VoiceUseCase.setEmotion(body.cast, emotion.name, emotion.value);
+                    this.voiceUseCase.setEmotion(body.cast, emotion.name, emotion.value);
                 }
             }
 
             // テキストから音声を作成
-            const response = this.VoiceUseCase.textToVoice(body.cast, body.text, exportPath + "\\output.wav");
+            const response = this.voiceUseCase.textToVoice(body.cast, body.text, exportPath + "\\output.wav");
             return {
                 processResult: response,
                 outputPath: exportPath + "\\output.wav",
@@ -60,6 +60,10 @@ export class VoiceController {
     }
 
     getEmotionName(cast: string): string[] {
-        return this.VoiceUseCase.getEmotionName(cast);
+        return this.voiceUseCase.getEmotionName(cast);
+    }
+
+    getAvailableCasts(): string[] {
+        return this.voiceUseCase.getAvailableCasts();
     }
 }
