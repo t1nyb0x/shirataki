@@ -1,9 +1,9 @@
 import "reflect-metadata";
 import { VoiceController } from "../VoiceController";
 import { container } from "tsyringe";
-import { VoiceUseCasePort } from "@/ports/input/VoiceUseCasePort";
-import { VoiceValidator } from "@/validations/voiceValidation";
-import { ValidationError } from "@/errors/AppError";
+import { VoiceUseCasePort } from "@/domain/ports/VoiceUseCasePort";
+import { VoiceValidator } from "@/application/validations/voiceValidation";
+import { ValidationError } from "@/domain/errors/AppError";
 
 // モック用のVoiceUseCase実装
 class MockVoiceUseCase implements VoiceUseCasePort {

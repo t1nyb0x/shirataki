@@ -1,10 +1,10 @@
-import { VoiceUseCasePort } from "@/ports/input/VoiceUseCasePort";
+import { VoiceUseCasePort } from "@/domain/ports/VoiceUseCasePort";
 import path from "node:path";
 import { inject, injectable } from "tsyringe";
 import { randomUUID } from "node:crypto";
 import fs from "fs/promises";
-import { VoiceValidator } from "@/validations/voiceValidation";
-import { ValidationError } from "@/errors/AppError";
+import { VoiceValidator } from "@/application/validations/voiceValidation";
+import { ValidationError } from "@/domain/errors/AppError";
 
 @injectable()
 export class VoiceController {

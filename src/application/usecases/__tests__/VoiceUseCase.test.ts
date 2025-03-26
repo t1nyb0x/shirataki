@@ -1,8 +1,8 @@
 import "reflect-metadata";
 import { VoiceUseCase } from "../VoiceUseCase";
 import { container } from "tsyringe";
-import { CeVIOServicePort } from "@/ports/output/CeVIOServicePort";
-import { VoiceUseCasePort } from "@/ports/input/VoiceUseCasePort";
+import { CeVIOServicePort } from "@/domain/ports/CeVIOServicePort";
+import { VoiceUseCasePort } from "@/domain/ports/VoiceUseCasePort";
 
 // モック用のCeVIOService実装
 class MockCeVIOServicePort implements CeVIOServicePort {

@@ -1,4 +1,4 @@
-import { CeVIOServicePort, VoiceControlParams } from "@/ports/output/CeVIOServicePort";
+import { CeVIOServicePort, VoiceControlParams } from "@/domain/ports/CeVIOServicePort";
 import { injectable } from "tsyringe";
 
 interface ICevioService {

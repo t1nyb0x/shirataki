@@ -1,6 +1,6 @@
-import { VoiceUseCasePort } from "@/ports/input/VoiceUseCasePort";
+import { VoiceUseCasePort } from "@/domain/ports/VoiceUseCasePort";
 import { injectable, inject } from "tsyringe";
-import { ValidationError } from "@/errors/AppError";
+import { ValidationError } from "@/domain/errors/AppError";
 
 @injectable()
 export class VoiceValidator {

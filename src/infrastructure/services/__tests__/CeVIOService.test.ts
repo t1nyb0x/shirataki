@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { CeVIOService } from "../CeVIOService";
 import { container } from "tsyringe";
-import { CeVIOServicePort } from "@/ports/output/CeVIOServicePort";
+import { CeVIOServicePort } from "@/domain/ports/CeVIOServicePort";
 
 // モック用の実装クラスを作成
 class MockCeVIOServicePort implements CeVIOServicePort {
