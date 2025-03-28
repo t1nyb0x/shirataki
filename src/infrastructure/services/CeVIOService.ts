@@ -1,3 +1,4 @@
+import { logger } from "@/config/log4js";
 import { CeVIOServicePort, VoiceControlParams } from "@/domain/ports/CeVIOServicePort";
 import { injectable } from "tsyringe";
 
@@ -49,7 +50,7 @@ export class CeVIOService implements CeVIOServicePort {
     }
 
     private logVoiceParameters() {
-        console.log(`
+        logger.info(`
 現在のキャスト: ${this.talker.Cast}
 音量: ${this.talker.Volume}
 話す速さ: ${this.talker.Speed}
@@ -60,7 +61,7 @@ export class CeVIOService implements CeVIOServicePort {
         const components = this.talker.Components;
         for (let i = 0; i < components.Length; i++) {
             const comp = components.At(i);
-            console.log(`${comp.Name}: ${comp.Value}`);
+            logger.info(`${comp.Name}: ${comp.Value}`);
         }
     }
 
@@ -84,7 +85,7 @@ export class CeVIOService implements CeVIOServicePort {
         try {
             const result = this.talker.OutputWaveToFile(text, path);
             this.logVoiceParameters();
-            console.log(`生成されたWAVファイル: ${path}`);
+            logger.info(`生成されたWAVファイル: ${path}`);
             return result;
         } catch (error) {
             console.error(`WAV生成エラー: ${error instanceof Error ? error.message : String(error)}`);
@@ -102,7 +103,7 @@ export class CeVIOService implements CeVIOServicePort {
         this.talker.ToneScale = toneScale;
         this.talker.Alpha = alpha;
 
-        console.log(`声のパラメータを更新: ${JSON.stringify(params)}`);
+        logger.info(`声のパラメータを更新: ${JSON.stringify(params)}`);
     }
 
     getEmotionName(cast: string): string[] {

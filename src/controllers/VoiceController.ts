@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import fs from "fs/promises";
 import { VoiceValidator } from "@/application/validations/voiceValidation";
 import { ValidationError } from "@/domain/errors/AppError";
+import { logger } from "@/config/log4js";
 
 @injectable()
 export class VoiceController {
@@ -49,17 +50,43 @@ export class VoiceController {
             }
 
             // テキストから音声を作成
-            const response = this.voiceUseCase.textToVoice(body.cast, body.text, exportPath + "\\output.wav");
+            const outputPath = path.join(exportPath, "output.wav");
+            const response = this.voiceUseCase.textToVoice(body.cast, body.text, outputPath);
+
+            // ストリーム送信後にファイルを削除
+            const cleanup = async () => {
+                try {
+                    await fs.rm(exportPath, { recursive: true, force: true });
+                    logger.info(`${exportPath}を削除しました`);
+                } catch (err) {
+                    console.error("ファイル削除に失敗しました:", err);
+                }
+            };
+
             return {
                 processResult: response,
-                outputPath: exportPath + "\\output.wav",
+                outputPath: outputPath,
+                cleanup, // クリーンアップ関数を返す
             };
         } catch (error) {
             console.error(error);
+            throw error;
         }
     }
 
-    getEmotionName(cast: string): string[] {
+    async getEmotionName(cast: string): Promise<string[] | { error: string; status: number }> {
+        // キャストのバリデーション
+        try {
+            await this.voiceValidator.validateCast(cast);
+        } catch (error) {
+            if (error instanceof ValidationError) {
+                return {
+                    error: error.message,
+                    status: 400,
+                };
+            }
+            throw error;
+        }
         return this.voiceUseCase.getEmotionName(cast);
     }
 
