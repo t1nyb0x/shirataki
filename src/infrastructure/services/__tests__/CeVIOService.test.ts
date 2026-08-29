@@ -25,6 +25,7 @@ const createMockTalker = () => {
         Alpha: 0,
         Speak: jest.fn(),
         OutputWaveToFile: jest.fn().mockReturnValue(true),
+        GetTextDuration: jest.fn().mockReturnValue(1.234),
         Components: {
             Length: components.length,
             At: jest.fn((index: number) => components[index]),
@@ -153,6 +154,16 @@ describe("CeVIOService", () => {
             expect(() => cevioService.setEmotion("花隈千冬", "存在しない感情", 90)).toThrow(
                 /Failed to set emotion: 存在しない感情/
             );
+        });
+    });
+
+    describe("getTextDuration", () => {
+        it("should return the duration of the text", () => {
+            const result = cevioService.getTextDuration("花隈千冬", "こんにちは。");
+
+            expect(mockTalker.GetTextDuration).toHaveBeenCalledWith("こんにちは。");
+            expect(mockTalker.Cast).toBe("花隈千冬");
+            expect(result).toBe(1.234);
         });
     });
 

@@ -27,6 +27,9 @@ class MockCeVIOServicePort implements CeVIOServicePort {
     close(): void {
         throw new Error("Method not implemented.");
     }
+    getTextDuration(cast: string, text: string): number {
+        throw new Error("Method not implemented.");
+    }
     getAvailableCasts(): string[] {
         return ["花隈千冬", "弦巻マキ"]; // モック用の実装
     }
@@ -166,6 +169,19 @@ describe("VoiceUseCase", () => {
 
             expect(mockCeVIOService.setEmotion).toHaveBeenCalledTimes(1);
             expect(mockCeVIOService.setEmotion).toHaveBeenCalledWith(cast, "嬉しい", 0);
+        });
+    });
+
+    describe("getTextDuration", () => {
+        it("should return the duration from CeVIOService", () => {
+            const cast = "花隈千冬";
+            const text = "こんにちは。";
+            jest.spyOn(mockCeVIOService, "getTextDuration").mockReturnValue(1.234);
+
+            const result = voiceUseCase.getTextDuration(cast, text);
+
+            expect(result).toBe(1.234);
+            expect(mockCeVIOService.getTextDuration).toHaveBeenCalledWith(cast, text);
         });
     });
 

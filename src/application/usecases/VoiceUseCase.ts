@@ -58,6 +58,10 @@ export class VoiceUseCase implements VoiceUseCasePort {
         return this.cevioService.speak(cast, text);
     }
 
+    getTextDuration(cast: string, text: string): number {
+        return this.cevioService.getTextDuration(cast, text);
+    }
+
     getAvailableCasts(): string[] {
         return this.cevioService.getAvailableCasts();
     }

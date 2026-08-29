@@ -26,6 +26,9 @@ class MockVoiceUseCase implements VoiceUseCasePort {
     speak(cast: string, text: string): boolean {
         return true; // モック用の実装
     }
+    getTextDuration(cast: string, text: string): number {
+        throw new Error("Method not implemented.");
+    }
     getAvailableCasts(): string[] {
         return ["花隈千冬", "弦巻マキ"]; // モック用の実装
     }
@@ -148,6 +151,30 @@ describe("VoiceController", () => {
             const result = await voiceController.getEmotionName("花隈千冬");
 
             expect(result).toEqual(mockEmotions);
+        });
+    });
+
+    describe("getTextDuration", () => {
+        it("should return the duration", async () => {
+            jest.spyOn(mockVoiceValidator, "validateCast").mockResolvedValue(undefined);
+            jest.spyOn(mockVoiceUseCase, "getTextDuration").mockReturnValue(1.234);
+
+            const result = await voiceController.getTextDuration("花隈千冬", "こんにちは。");
+
+            expect(result).toBe(1.234);
+            expect(mockVoiceUseCase.getTextDuration).toHaveBeenCalledWith("花隈千冬", "こんにちは。");
+        });
+
+        it("should return error when the cast is invalid", async () => {
+            const error = new ValidationError("無効なキャストです");
+            jest.spyOn(mockVoiceValidator, "validateCast").mockRejectedValue(error);
+
+            const result = await voiceController.getTextDuration("存在しないキャスト", "こんにちは。");
+
+            expect(result).toEqual({
+                error: "無効なキャストです",
+                status: 400,
+            });
         });
     });
 

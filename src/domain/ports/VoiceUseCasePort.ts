@@ -13,5 +13,6 @@ export interface VoiceUseCasePort {
     textToVoice(cast: string, text: string, path: string): boolean;
     setEmotions(cast: string, emotions?: { name: string; value: number }[]): void;
     speak(cast: string, text: string): boolean;
+    getTextDuration(cast: string, text: string): number;
     getAvailableCasts(): string[];
 }

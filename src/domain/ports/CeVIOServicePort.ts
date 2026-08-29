@@ -12,6 +12,7 @@ export interface CeVIOServicePort {
     setParam(cast: string, params: VoiceControlParams): void;
     getEmotionName(cast: string): string[];
     setEmotion(cast: string, emotionName: string, value: number): void;
+    getTextDuration(cast: string, text: string): number;
     getAvailableCasts(): string[];
     close(): void;
 }

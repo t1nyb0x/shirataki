@@ -24,6 +24,7 @@ interface ITalker {
     Cast: string;
     Speak(text: string): any;
     OutputWaveToFile(text: string, path: string): boolean;
+    GetTextDuration(text: string): number;
     Volume: number;
     Speed: number;
     Tone: number;
@@ -151,6 +152,11 @@ export class CeVIOService implements CeVIOServicePort {
                 `Failed to set emotion: ${emotionName}. ${error instanceof Error ? error.message : String(error)}`
             );
         }
+    }
+
+    getTextDuration(cast: string, text: string): number {
+        this.setCast(cast);
+        return this.talker.GetTextDuration(text);
     }
 
     getAvailableCasts(): string[] {

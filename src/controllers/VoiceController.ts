@@ -86,6 +86,22 @@ export class VoiceController {
         return this.voiceUseCase.getEmotionName(cast);
     }
 
+    async getTextDuration(cast: string, text: string): Promise<number | { error: string; status: number }> {
+        // キャストのバリデーション
+        try {
+            await this.voiceValidator.validateCast(cast);
+        } catch (error) {
+            if (error instanceof ValidationError) {
+                return {
+                    error: error.message,
+                    status: 400,
+                };
+            }
+            throw error;
+        }
+        return this.voiceUseCase.getTextDuration(cast, text);
+    }
+
     getAvailableCasts(): string[] {
         return this.voiceUseCase.getAvailableCasts();
     }
