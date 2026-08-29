@@ -13,7 +13,17 @@ CeVIO AIは花隈千冬を使用して動作確認を行っています。
 1. CeVIO AIのインストールが必要です
 2. Windows環境で動作します
 3. Python、Visual Studio Communityから、C++開発によるデスクトップ開発をインストールしてください
-4. 環境変数`OUTPUT_PATH`で音声ファイルの出力先を指定可能（未設定時は`./tmp`）
+
+### 環境変数
+
+`.env`ファイルで設定できます。いずれも省略可能です。
+
+| 変数名 | 説明 | 未設定時 |
+| --- | --- | --- |
+| `HOST` | 待ち受けるホスト | `0.0.0.0` |
+| `PORT` | 待ち受けるポート | `3000` |
+| `OUTPUT_PATH` | 音声ファイルの出力先 | `./tmp` |
+| `LOG_DIR` | ログファイルの出力先 | `./logs` |
 
 ## 起動方法
 
@@ -27,11 +37,29 @@ npm install && npm run build
 npm start
 ```
 
-デフォルトポートは3000です。`.env`ファイルで変更可能です。
+### 起動時の動作
+
+起動時にCeVIO AIへ接続します。接続できない場合はサーバーを起動せず、理由をログに出力して終了します。
+
+CeVIO AIがインストールされていない、実行ファイルが見つからない、起動に失敗した場合などが該当します。
+
+### 終了時の動作
+
+`Ctrl + C`（SIGINT）またはSIGTERMを受け取ると、サーバーを停止したあとCeVIO AIへ終了を要求します。
+
+CeVIO AIが編集中の場合は、CeVIO AI側で保存や終了のキャンセルができます。
 
 ## エンドポイント
 
 POSTリクエストを行う場合は、JSON形式でbodyに値を設定してください。
+
+エラー時は、いずれのエンドポイントも次の形式で返します。リクエストの内容に問題がある場合は400、処理に失敗した場合は500です。
+
+```json
+{
+    "error": "無効なキャストです: 存在しないキャスト　有効なキャスト: 花隈千冬, 夏色花梨"
+}
+```
 
 ### 1. サンプル音声生成
 
@@ -52,6 +80,18 @@ exportTypeを省略すると、WAVEファイルを出力します。
     "exportType": 0
 }
 ```
+
+**レスポンス例（exportType: 0）:**
+```json
+{
+    "processResult": true,
+    "outputPath": "D:\\work\\shirataki\\tmp\\4f1a2c9e-1b3d-4a7f-9c2e-8d5b6a0f3e71\\output.wav"
+}
+```
+
+`outputPath`に出力されたWAVEファイルは削除されません。不要になったら呼び出し側で削除してください。
+
+exportTypeに1を指定した場合は、`audio/wav`として音声データそのものを返します。この場合、送信後にファイルは削除されます。
 
 ### 2. カスタム音声生成
 
@@ -84,6 +124,16 @@ exportTypeを0で指定すると、WAVEファイルを出力します。1を指�
     "exportType": 0
 }
 ```
+
+**レスポンス例（exportType: 0）:**
+```json
+{
+    "processResult": true,
+    "outputPath": "D:\\work\\shirataki\\tmp\\4f1a2c9e-1b3d-4a7f-9c2e-8d5b6a0f3e71\\output.wav"
+}
+```
+
+サンプル音声生成と同じく、exportTypeに1を指定した場合は`audio/wav`として音声データを返します。
 
 #### voiceControlについて
 
