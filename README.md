@@ -2,6 +2,12 @@
 
 CeVIO AIを使用して音声を生成するREST APIです。Windows環境で動作し、CeVIO AIがインストールされている必要があります。
 
+Node.js 22.10.0で開発、動作確認を行っています。
+
+CeVIO AIは花隈千冬を使用して動作確認を行っています。
+
+依存パッケージの都合上、Python3系、C++開発によるデスクトップ開発のインストールが必要です。
+
 ## 環境設定
 
 1. CeVIO AIのインストールが必要です
@@ -30,7 +36,7 @@ POSTリクエストを行う場合は、JSON形式でbodyに値を設定して�
 ### 1. サンプル音声生成
 
 ```
-POST /voice/sample
+POST /v1/voice/sample
 ```
 
 指定したキャストのサンプル音声("こんにちは、[キャスト名]です。")を生成します。
@@ -50,7 +56,7 @@ exportTypeを省略すると、WAVEファイルを出力します。
 ### 2. カスタム音声生成
 
 ```
-POST /voice/create
+POST /v1/voice/create
 ```
 
 指定したテキストとパラメータで音声を生成します。
@@ -95,13 +101,13 @@ exportTypeを0で指定すると、WAVEファイルを出力します。1を指�
 
 CeVIO AIごとに用意された感情値を設定できます。感情値は0 ~ 100で設定可能です。
 
-使用できる感情は、 `GET /voice/emotions` で取得できます。
+使用できる感情は、 `GET /v1/voice/emotions` で取得できます。
 
 
 ### 3. 感情名取得
 
 ```
-GET /voice/emotions
+GET /v1/voice/emotions
 ```
 
 指定したキャストで利用可能な感情名の一覧を取得します。
@@ -123,7 +129,7 @@ GET /voice/emotions
 ### 4. 使用可能なキャスト取得
 
 ```
-GET /voice/casts
+GET /v1/voice/casts
 ```
 
 使用可能なキャストの一覧を取得します
