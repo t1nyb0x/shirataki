@@ -35,7 +35,8 @@ async function checkForUpdates() {
 }
 
 const app = express();
-const port = process.env.PORT ?? 3000;
+const host = process.env.HOST ?? "0.0.0.0";
+const port = (process.env.PORT as unknown as number) ?? 3000;
 
 // 起動時にバージョンチェックを実行
 checkForUpdates();
@@ -44,6 +45,6 @@ app.use(express.json());
 
 app.use("/v1", routesV1);
 
-app.listen(port, () => {
-    console.log(`Launched Shirataki server http://localhost:${port}`);
+app.listen(port, host, () => {
+    console.log(`Launched Shirataki server http://${host}:${port}`);
 });

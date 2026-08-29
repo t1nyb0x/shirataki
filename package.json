@@ -15,7 +15,7 @@
   "type": "commonjs",
   "main": "server.js",
   "scripts": {
-    "start": "node --env-file=.env ./dist/server.js",
+    "start": "node --env-file=.env ./dist/src/server.js",
     "debug": "tsc --noEmit && tsx watch --env-file=.env src/server.ts",
     "test": "jest",
     "build": "tsc && tsc-alias",
