@@ -7,6 +7,7 @@ export class VoiceUseCase implements VoiceUseCasePort {
     constructor(@inject("CeVIOService") private cevioService: CeVIOServicePort) {}
 
     private static readonly DEFAULT_CONTROL_VALUE = 50;
+    private static readonly DEFAULT_EMOTION_VALUE = 0;
 
     setVoiceControl(
         cast: string,
@@ -37,8 +38,20 @@ export class VoiceUseCase implements VoiceUseCasePort {
         return this.cevioService.generateWav(cast, text, path);
     }
 
-    setEmotion(cast: string, emotionName: string, value: number): void {
-        this.cevioService.setEmotion(cast, emotionName, value);
+    /**
+     * キャストの全感情成分を設定する。
+     * CeVIOのTalkerは設定値を保持し続けるため、リクエストに含まれない成分は
+     * DEFAULT_EMOTION_VALUEで打ち消し、リクエスト単体で結果が決まるようにする。
+     */
+    setEmotions(cast: string, emotions?: { name: string; value: number }[]): void {
+        const requestedValues = new Map((emotions ?? []).map((emotion) => [emotion.name, emotion.value]));
+        for (const emotionName of this.cevioService.getEmotionName(cast)) {
+            this.cevioService.setEmotion(
+                cast,
+                emotionName,
+                requestedValues.get(emotionName) ?? VoiceUseCase.DEFAULT_EMOTION_VALUE
+            );
+        }
     }
 
     speak(cast: string, text: string): boolean {

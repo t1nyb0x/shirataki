@@ -42,12 +42,8 @@ export class VoiceController {
             // 音声の調節を行う
             this.voiceUseCase.setVoiceControl(body.cast, body.voiceControl);
 
-            // 感情パラメータを設定
-            if (body.emotions) {
-                for (const emotion of body.emotions) {
-                    this.voiceUseCase.setEmotion(body.cast, emotion.name, emotion.value);
-                }
-            }
+            // 感情パラメータを設定（未指定の成分は0で打ち消される）
+            this.voiceUseCase.setEmotions(body.cast, body.emotions);
 
             // テキストから音声を作成
             const outputPath = path.join(exportPath, "output.wav");
