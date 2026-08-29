@@ -4,7 +4,9 @@ import axios from "axios";
 import { compareVersions } from "compare-versions";
 import routesV1 from "@/routes/v1/api";
 import "@/DIContainer";
-import "@/config/log4js";
+import { logger } from "@/config/log4js";
+import { container } from "tsyringe";
+import { CeVIOServicePort } from "@/domain/ports/CeVIOServicePort";
 import packageJson from "../package.json";
 
 async function checkForUpdates() {
@@ -34,6 +36,21 @@ async function checkForUpdates() {
     }
 }
 
+/**
+ * CeVIO AIへの接続を起動時に確認する。
+ * 接続できない場合はリクエストを受けても処理できないため、起動を中断する。
+ */
+function resolveCeVIOService(): CeVIOServicePort {
+    try {
+        return container.resolve<CeVIOServicePort>("CeVIOService");
+    } catch (error) {
+        logger.error(
+            `CeVIO AIに接続できないため、サーバーを起動できません: ${error instanceof Error ? error.message : String(error)}`
+        );
+        process.exit(1);
+    }
+}
+
 const app = express();
 const host = process.env.HOST ?? "0.0.0.0";
 const port = (process.env.PORT as unknown as number) ?? 3000;
@@ -45,6 +62,29 @@ app.use(express.json());
 
 app.use("/v1", routesV1);
 
-app.listen(port, host, () => {
+const cevioService = resolveCeVIOService();
+
+const server = app.listen(port, host, () => {
     console.log(`Launched Shirataki server http://${host}:${port}`);
 });
+
+let isShuttingDown = false;
+
+// 終了時にCeVIO AIへ終了を要求する
+function shutdown(signal: NodeJS.Signals) {
+    if (isShuttingDown) return;
+    isShuttingDown = true;
+
+    logger.info(`${signal}を受信しました。サーバーを終了します`);
+    server.close(() => {
+        try {
+            cevioService.close();
+        } catch (error) {
+            logger.error(`CeVIO AIの終了要求に失敗しました: ${error instanceof Error ? error.message : String(error)}`);
+        }
+        process.exit(0);
+    });
+}
+
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
