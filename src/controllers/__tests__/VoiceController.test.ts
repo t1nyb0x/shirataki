@@ -4,6 +4,7 @@ import { container } from "tsyringe";
 import { VoiceUseCasePort } from "@/domain/ports/VoiceUseCasePort";
 import { VoiceValidator } from "@/application/validations/voiceValidation";
 import { ValidationError } from "@/domain/errors/AppError";
+import path from "node:path";
 
 // モック用のVoiceUseCase実装
 class MockVoiceUseCase implements VoiceUseCasePort {
@@ -81,7 +82,12 @@ describe("VoiceController", () => {
 
             expect(result).toBeDefined();
             expect(result.processResult).toBe(true);
-            expect(result.outputPath).toMatch(/[\\/]tmp\\[0-9a-f-]+\\output\.wav$/);
+
+            // パス区切りは実行環境に依存するため、セグメントで検証する
+            const segments = result.outputPath.split(path.sep);
+            expect(segments.at(-1)).toBe("output.wav");
+            expect(segments.at(-2)).toMatch(/^[0-9a-f-]{36}$/);
+            expect(segments.at(-3)).toBe("tmp");
         });
 
         it("should set emotions for every request so that previous values are not kept", async () => {
@@ -135,11 +141,11 @@ describe("VoiceController", () => {
     });
 
     describe("getEmotionName", () => {
-        it("should return emotion names", () => {
+        it("should return emotion names", async () => {
             const mockEmotions = ["happy", "sad"];
             jest.spyOn(mockVoiceUseCase, "getEmotionName").mockReturnValue(mockEmotions);
 
-            const result = voiceController.getEmotionName("花隈千冬");
+            const result = await voiceController.getEmotionName("花隈千冬");
 
             expect(result).toEqual(mockEmotions);
         });
