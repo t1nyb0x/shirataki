@@ -3,9 +3,17 @@ import { CeVIOServicePort, VoiceControlParams } from "@/domain/ports/CeVIOServic
 import { injectable } from "tsyringe";
 
 interface ICevioService {
-    StartHost(waitForReady: boolean): boolean;
-    CloseHost(timeout: number): void;
+    StartHost(noWait: boolean): number;
+    CloseHost(mode: number): void;
 }
+
+/** StartHostの戻り値。0は成功で、負数は失敗を表す。 */
+const START_HOST_ERROR_REASONS = new Map<number, string>([
+    [-1, "インストール状態が不明です。"],
+    [-2, "実行ファイルが見つかりません。"],
+    [-3, "プロセスの起動に失敗しました。"],
+    [-4, "アプリケーション起動後、エラーにより終了しました。"],
+]);
 
 interface IComponent {
     Name: string;
@@ -39,7 +47,22 @@ export class CeVIOService implements CeVIOServicePort {
         require("winax");
         this.service = new ActiveXObject("CeVIO.Talk.RemoteService2.ServiceControl2V40") as ICevioService;
         this.talker = new ActiveXObject("CeVIO.Talk.RemoteService2.Talker2V40") as ITalker;
-        this.service.StartHost(false);
+        this.startHost();
+    }
+
+    /**
+     * CeVIO AIを起動する。
+     * noWaitにfalseを渡し、外部からアクセス可能になるまで待つ。
+     */
+    private startHost() {
+        const result = this.service.StartHost(false);
+        if (result !== 0) {
+            const reason = START_HOST_ERROR_REASONS.get(result) ?? "不明なエラーです。";
+            const message = `CeVIO AIの起動に失敗しました。(コード: ${result}) ${reason}`;
+            logger.error(message);
+            throw new Error(message);
+        }
+        logger.info("CeVIO AIを起動しました");
     }
 
     private setCast(cast: string) {
@@ -140,6 +163,8 @@ export class CeVIOService implements CeVIOServicePort {
     }
 
     close() {
+        // mode 0: CeVIO AIが編集中の場合、保存や終了キャンセルが可能
         this.service.CloseHost(0);
+        logger.info("CeVIO AIの終了を要求しました");
     }
 }

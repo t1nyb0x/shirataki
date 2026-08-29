@@ -35,7 +35,7 @@ export class VoiceController {
             throw error;
         }
         const exportDir = process.env.OUTPUT_PATH ?? path.join(__dirname, "..", "..", "tmp");
-        const exportPath = exportDir + "\\" + randomUUID();
+        const exportPath = path.join(exportDir, randomUUID());
 
         try {
             await fs.mkdir(exportPath, { recursive: true });
