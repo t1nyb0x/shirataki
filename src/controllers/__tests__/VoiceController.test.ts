@@ -19,8 +19,8 @@ class MockVoiceUseCase implements VoiceUseCasePort {
     textToVoice(cast: string, text: string, path: string): boolean {
         throw new Error("Method not implemented.");
     }
-    setEmotion(cast: string, emotionName: string, value: number): void {
-        throw new Error("Method not implemented.");
+    setEmotions(cast: string, emotions?: { name: string; value: number }[]): void {
+        // 何もしない（モック用）
     }
     speak(cast: string, text: string): boolean {
         return true; // モック用の実装
@@ -82,6 +82,38 @@ describe("VoiceController", () => {
             expect(result).toBeDefined();
             expect(result.processResult).toBe(true);
             expect(result.outputPath).toMatch(/[\\/]tmp\\[0-9a-f-]+\\output\.wav$/);
+        });
+
+        it("should set emotions for every request so that previous values are not kept", async () => {
+            jest.spyOn(mockVoiceValidator, "validateCast").mockResolvedValue(undefined);
+            jest.spyOn(mockVoiceValidator, "validateEmotions").mockResolvedValue(undefined);
+            jest.spyOn(mockVoiceUseCase, "textToVoice").mockReturnValue(true);
+            jest.spyOn(mockVoiceUseCase, "setEmotions");
+
+            const emotions = [{ name: "哀しみ", value: 90 }];
+            await voiceController.createVoice({
+                cast: "花隈千冬",
+                text: "テストメッセージ",
+                voiceControl: {},
+                emotions,
+            });
+
+            expect(mockVoiceUseCase.setEmotions).toHaveBeenCalledWith("花隈千冬", emotions);
+        });
+
+        it("should reset emotions when emotions are not provided", async () => {
+            jest.spyOn(mockVoiceValidator, "validateCast").mockResolvedValue(undefined);
+            jest.spyOn(mockVoiceValidator, "validateEmotions").mockResolvedValue(undefined);
+            jest.spyOn(mockVoiceUseCase, "textToVoice").mockReturnValue(true);
+            jest.spyOn(mockVoiceUseCase, "setEmotions");
+
+            await voiceController.createVoice({
+                cast: "花隈千冬",
+                text: "テストメッセージ",
+                voiceControl: {},
+            });
+
+            expect(mockVoiceUseCase.setEmotions).toHaveBeenCalledWith("花隈千冬", undefined);
         });
 
         it("should return error when validation fails", async () => {
