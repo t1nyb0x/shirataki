@@ -4,6 +4,7 @@ import { container } from "tsyringe";
 import { VoiceUseCasePort } from "@/domain/ports/VoiceUseCasePort";
 import { VoiceValidator } from "@/application/validations/voiceValidation";
 import { ValidationError } from "@/domain/errors/AppError";
+import { PhonemeData } from "@/domain/ports/CeVIOServicePort";
 import path from "node:path";
 
 // モック用のVoiceUseCase実装
@@ -27,6 +28,9 @@ class MockVoiceUseCase implements VoiceUseCasePort {
         return true; // モック用の実装
     }
     getTextDuration(cast: string, text: string): number {
+        throw new Error("Method not implemented.");
+    }
+    getPhonemes(cast: string, text: string): PhonemeData[] {
         throw new Error("Method not implemented.");
     }
     getAvailableCasts(): string[] {
@@ -170,6 +174,34 @@ describe("VoiceController", () => {
             jest.spyOn(mockVoiceValidator, "validateCast").mockRejectedValue(error);
 
             const result = await voiceController.getTextDuration("存在しないキャスト", "こんにちは。");
+
+            expect(result).toEqual({
+                error: "無効なキャストです",
+                status: 400,
+            });
+        });
+    });
+
+    describe("getPhonemes", () => {
+        it("should return the phonemes", async () => {
+            const mockPhonemes = [
+                { phoneme: "k", startTime: 0, endTime: 0.05 },
+                { phoneme: "o", startTime: 0.05, endTime: 0.12 },
+            ];
+            jest.spyOn(mockVoiceValidator, "validateCast").mockResolvedValue(undefined);
+            jest.spyOn(mockVoiceUseCase, "getPhonemes").mockReturnValue(mockPhonemes);
+
+            const result = await voiceController.getPhonemes("花隈千冬", "こんにちは。");
+
+            expect(result).toEqual(mockPhonemes);
+            expect(mockVoiceUseCase.getPhonemes).toHaveBeenCalledWith("花隈千冬", "こんにちは。");
+        });
+
+        it("should return error when the cast is invalid", async () => {
+            const error = new ValidationError("無効なキャストです");
+            jest.spyOn(mockVoiceValidator, "validateCast").mockRejectedValue(error);
+
+            const result = await voiceController.getPhonemes("存在しないキャスト", "こんにちは。");
 
             expect(result).toEqual({
                 error: "無効なキャストです",

@@ -1,4 +1,4 @@
-import { CeVIOServicePort } from "@/domain/ports/CeVIOServicePort";
+import { CeVIOServicePort, PhonemeData } from "@/domain/ports/CeVIOServicePort";
 import { VoiceUseCasePort } from "@/domain/ports/VoiceUseCasePort";
 import { inject, injectable } from "tsyringe";
 
@@ -60,6 +60,10 @@ export class VoiceUseCase implements VoiceUseCasePort {
 
     getTextDuration(cast: string, text: string): number {
         return this.cevioService.getTextDuration(cast, text);
+    }
+
+    getPhonemes(cast: string, text: string): PhonemeData[] {
+        return this.cevioService.getPhonemes(cast, text);
     }
 
     getAvailableCasts(): string[] {

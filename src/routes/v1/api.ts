@@ -131,6 +131,33 @@ router.get("/voice/duration", async (req: Request, res: Response): Promise<void>
     }
 });
 
+router.get("/voice/phonemes", async (req: Request, res: Response): Promise<void> => {
+    try {
+        const voiceController = container.resolve(VoiceController);
+        if (!req.query.cast) {
+            res.status(400).send({ error: "キャスト名をクエリに入力してください" });
+            return;
+        }
+        if (!req.query.text) {
+            res.status(400).send({ error: "テキストをクエリに入力してください" });
+            return;
+        }
+        const cast = req.query.cast as string;
+        const text = req.query.text as string;
+        const response = await voiceController.getPhonemes(cast, text);
+
+        if (!Array.isArray(response)) {
+            res.status(400).send({ error: response.error });
+            return;
+        }
+
+        res.status(200).send(response);
+    } catch (error) {
+        console.error("音素データ取得エラー:", error);
+        res.status(500).send({ error: "音素データの取得に失敗しました" });
+    }
+});
+
 router.get("/voice/casts", (req: Request, res: Response): void => {
     const voiceController = container.resolve(VoiceController);
     const response = voiceController.getAvailableCasts();

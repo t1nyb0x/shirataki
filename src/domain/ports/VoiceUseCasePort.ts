@@ -1,3 +1,5 @@
+import { PhonemeData } from "@/domain/ports/CeVIOServicePort";
+
 export interface VoiceUseCasePort {
     setVoiceControl(
         cast: string,
@@ -14,5 +16,6 @@ export interface VoiceUseCasePort {
     setEmotions(cast: string, emotions?: { name: string; value: number }[]): void;
     speak(cast: string, text: string): boolean;
     getTextDuration(cast: string, text: string): number;
+    getPhonemes(cast: string, text: string): PhonemeData[];
     getAvailableCasts(): string[];
 }
