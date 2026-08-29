@@ -53,6 +53,14 @@ CeVIO AIが編集中の場合は、CeVIO AI側で保存や終了のキャンセ�
 
 POSTリクエストを行う場合は、JSON形式でbodyに値を設定してください。
 
+エラー時は、いずれのエンドポイントも次の形式で返します。リクエストの内容に問題がある場合は400、処理に失敗した場合は500です。
+
+```json
+{
+    "error": "無効なキャストです: 存在しないキャスト　有効なキャスト: 花隈千冬, 夏色花梨"
+}
+```
+
 ### 1. サンプル音声生成
 
 ```
@@ -72,6 +80,18 @@ exportTypeを省略すると、WAVEファイルを出力します。
     "exportType": 0
 }
 ```
+
+**レスポンス例（exportType: 0）:**
+```json
+{
+    "processResult": true,
+    "outputPath": "D:\\work\\shirataki\\tmp\\4f1a2c9e-1b3d-4a7f-9c2e-8d5b6a0f3e71\\output.wav"
+}
+```
+
+`outputPath`に出力されたWAVEファイルは削除されません。不要になったら呼び出し側で削除してください。
+
+exportTypeに1を指定した場合は、`audio/wav`として音声データそのものを返します。この場合、送信後にファイルは削除されます。
 
 ### 2. カスタム音声生成
 
@@ -104,6 +124,16 @@ exportTypeを0で指定すると、WAVEファイルを出力します。1を指�
     "exportType": 0
 }
 ```
+
+**レスポンス例（exportType: 0）:**
+```json
+{
+    "processResult": true,
+    "outputPath": "D:\\work\\shirataki\\tmp\\4f1a2c9e-1b3d-4a7f-9c2e-8d5b6a0f3e71\\output.wav"
+}
+```
+
+サンプル音声生成と同じく、exportTypeに1を指定した場合は`audio/wav`として音声データを返します。
 
 #### voiceControlについて
 
