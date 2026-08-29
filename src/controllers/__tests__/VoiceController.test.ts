@@ -4,6 +4,8 @@ import { container } from "tsyringe";
 import { VoiceUseCasePort } from "@/domain/ports/VoiceUseCasePort";
 import { VoiceValidator } from "@/application/validations/voiceValidation";
 import { ValidationError } from "@/domain/errors/AppError";
+import { PhonemeData } from "@/domain/ports/CeVIOServicePort";
+import path from "node:path";
 
 // モック用のVoiceUseCase実装
 class MockVoiceUseCase implements VoiceUseCasePort {
@@ -24,6 +26,12 @@ class MockVoiceUseCase implements VoiceUseCasePort {
     }
     speak(cast: string, text: string): boolean {
         return true; // モック用の実装
+    }
+    getTextDuration(cast: string, text: string): number {
+        throw new Error("Method not implemented.");
+    }
+    getPhonemes(cast: string, text: string): PhonemeData[] {
+        throw new Error("Method not implemented.");
     }
     getAvailableCasts(): string[] {
         return ["花隈千冬", "弦巻マキ"]; // モック用の実装
@@ -81,7 +89,12 @@ describe("VoiceController", () => {
 
             expect(result).toBeDefined();
             expect(result.processResult).toBe(true);
-            expect(result.outputPath).toMatch(/[\\/]tmp\\[0-9a-f-]+\\output\.wav$/);
+
+            // パス区切りは実行環境に依存するため、セグメントで検証する
+            const segments = result.outputPath.split(path.sep);
+            expect(segments.at(-1)).toBe("output.wav");
+            expect(segments.at(-2)).toMatch(/^[0-9a-f-]{36}$/);
+            expect(segments.at(-3)).toBe("tmp");
         });
 
         it("should set emotions for every request so that previous values are not kept", async () => {
@@ -135,13 +148,65 @@ describe("VoiceController", () => {
     });
 
     describe("getEmotionName", () => {
-        it("should return emotion names", () => {
+        it("should return emotion names", async () => {
             const mockEmotions = ["happy", "sad"];
             jest.spyOn(mockVoiceUseCase, "getEmotionName").mockReturnValue(mockEmotions);
 
-            const result = voiceController.getEmotionName("花隈千冬");
+            const result = await voiceController.getEmotionName("花隈千冬");
 
             expect(result).toEqual(mockEmotions);
+        });
+    });
+
+    describe("getTextDuration", () => {
+        it("should return the duration", async () => {
+            jest.spyOn(mockVoiceValidator, "validateCast").mockResolvedValue(undefined);
+            jest.spyOn(mockVoiceUseCase, "getTextDuration").mockReturnValue(1.234);
+
+            const result = await voiceController.getTextDuration("花隈千冬", "こんにちは。");
+
+            expect(result).toBe(1.234);
+            expect(mockVoiceUseCase.getTextDuration).toHaveBeenCalledWith("花隈千冬", "こんにちは。");
+        });
+
+        it("should return error when the cast is invalid", async () => {
+            const error = new ValidationError("無効なキャストです");
+            jest.spyOn(mockVoiceValidator, "validateCast").mockRejectedValue(error);
+
+            const result = await voiceController.getTextDuration("存在しないキャスト", "こんにちは。");
+
+            expect(result).toEqual({
+                error: "無効なキャストです",
+                status: 400,
+            });
+        });
+    });
+
+    describe("getPhonemes", () => {
+        it("should return the phonemes", async () => {
+            const mockPhonemes = [
+                { phoneme: "k", startTime: 0, endTime: 0.05 },
+                { phoneme: "o", startTime: 0.05, endTime: 0.12 },
+            ];
+            jest.spyOn(mockVoiceValidator, "validateCast").mockResolvedValue(undefined);
+            jest.spyOn(mockVoiceUseCase, "getPhonemes").mockReturnValue(mockPhonemes);
+
+            const result = await voiceController.getPhonemes("花隈千冬", "こんにちは。");
+
+            expect(result).toEqual(mockPhonemes);
+            expect(mockVoiceUseCase.getPhonemes).toHaveBeenCalledWith("花隈千冬", "こんにちは。");
+        });
+
+        it("should return error when the cast is invalid", async () => {
+            const error = new ValidationError("無効なキャストです");
+            jest.spyOn(mockVoiceValidator, "validateCast").mockRejectedValue(error);
+
+            const result = await voiceController.getPhonemes("存在しないキャスト", "こんにちは。");
+
+            expect(result).toEqual({
+                error: "無効なキャストです",
+                status: 400,
+            });
         });
     });
 

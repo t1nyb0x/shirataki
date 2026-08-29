@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { VoiceUseCase } from "../VoiceUseCase";
 import { container } from "tsyringe";
-import { CeVIOServicePort } from "@/domain/ports/CeVIOServicePort";
+import { CeVIOServicePort, PhonemeData } from "@/domain/ports/CeVIOServicePort";
 import { VoiceUseCasePort } from "@/domain/ports/VoiceUseCasePort";
 
 // モック用のCeVIOService実装
@@ -25,6 +25,12 @@ class MockCeVIOServicePort implements CeVIOServicePort {
         throw new Error("Method not implemented.");
     }
     close(): void {
+        throw new Error("Method not implemented.");
+    }
+    getTextDuration(cast: string, text: string): number {
+        throw new Error("Method not implemented.");
+    }
+    getPhonemes(cast: string, text: string): PhonemeData[] {
         throw new Error("Method not implemented.");
     }
     getAvailableCasts(): string[] {
@@ -166,6 +172,33 @@ describe("VoiceUseCase", () => {
 
             expect(mockCeVIOService.setEmotion).toHaveBeenCalledTimes(1);
             expect(mockCeVIOService.setEmotion).toHaveBeenCalledWith(cast, "嬉しい", 0);
+        });
+    });
+
+    describe("getTextDuration", () => {
+        it("should return the duration from CeVIOService", () => {
+            const cast = "花隈千冬";
+            const text = "こんにちは。";
+            jest.spyOn(mockCeVIOService, "getTextDuration").mockReturnValue(1.234);
+
+            const result = voiceUseCase.getTextDuration(cast, text);
+
+            expect(result).toBe(1.234);
+            expect(mockCeVIOService.getTextDuration).toHaveBeenCalledWith(cast, text);
+        });
+    });
+
+    describe("getPhonemes", () => {
+        it("should return the phonemes from CeVIOService", () => {
+            const cast = "花隈千冬";
+            const text = "こんにちは。";
+            const mockPhonemes = [{ phoneme: "k", startTime: 0, endTime: 0.05 }];
+            jest.spyOn(mockCeVIOService, "getPhonemes").mockReturnValue(mockPhonemes);
+
+            const result = voiceUseCase.getPhonemes(cast, text);
+
+            expect(result).toEqual(mockPhonemes);
+            expect(mockCeVIOService.getPhonemes).toHaveBeenCalledWith(cast, text);
         });
     });
 
