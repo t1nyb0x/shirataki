@@ -15,6 +15,10 @@ const createMockTalker = () => {
         { Name: "哀しみ", Value: 0 },
     ];
     const casts = ["花隈千冬", "弦巻マキ"];
+    const phonemes = [
+        { Phoneme: "k", StartTime: 0, EndTime: 0.05 },
+        { Phoneme: "o", StartTime: 0.05, EndTime: 0.12 },
+    ];
 
     return {
         Cast: "",
@@ -25,6 +29,11 @@ const createMockTalker = () => {
         Alpha: 0,
         Speak: jest.fn(),
         OutputWaveToFile: jest.fn().mockReturnValue(true),
+        GetTextDuration: jest.fn().mockReturnValue(1.234),
+        GetPhonemes: jest.fn(() => ({
+            Length: phonemes.length,
+            At: jest.fn((index: number) => phonemes[index]),
+        })),
         Components: {
             Length: components.length,
             At: jest.fn((index: number) => components[index]),
@@ -153,6 +162,29 @@ describe("CeVIOService", () => {
             expect(() => cevioService.setEmotion("花隈千冬", "存在しない感情", 90)).toThrow(
                 /Failed to set emotion: 存在しない感情/
             );
+        });
+    });
+
+    describe("getTextDuration", () => {
+        it("should return the duration of the text", () => {
+            const result = cevioService.getTextDuration("花隈千冬", "こんにちは。");
+
+            expect(mockTalker.GetTextDuration).toHaveBeenCalledWith("こんにちは。");
+            expect(mockTalker.Cast).toBe("花隈千冬");
+            expect(result).toBe(1.234);
+        });
+    });
+
+    describe("getPhonemes", () => {
+        it("should return every phoneme of the text", () => {
+            const result = cevioService.getPhonemes("花隈千冬", "こんにちは。");
+
+            expect(mockTalker.GetPhonemes).toHaveBeenCalledWith("こんにちは。");
+            expect(mockTalker.Cast).toBe("花隈千冬");
+            expect(result).toEqual([
+                { phoneme: "k", startTime: 0, endTime: 0.05 },
+                { phoneme: "o", startTime: 0.05, endTime: 0.12 },
+            ]);
         });
     });
 

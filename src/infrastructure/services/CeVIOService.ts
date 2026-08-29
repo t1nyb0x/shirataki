@@ -1,5 +1,5 @@
 import { logger } from "@/config/log4js";
-import { CeVIOServicePort, VoiceControlParams } from "@/domain/ports/CeVIOServicePort";
+import { CeVIOServicePort, PhonemeData, VoiceControlParams } from "@/domain/ports/CeVIOServicePort";
 import { injectable } from "tsyringe";
 
 interface ICevioService {
@@ -20,10 +20,21 @@ interface IComponent {
     Value: number;
 }
 
+interface IPhonemeData {
+    Phoneme: string;
+    StartTime: number;
+    EndTime: number;
+}
+
 interface ITalker {
     Cast: string;
     Speak(text: string): any;
     OutputWaveToFile(text: string, path: string): boolean;
+    GetTextDuration(text: string): number;
+    GetPhonemes(text: string): {
+        Length: number;
+        At(index: number): IPhonemeData;
+    };
     Volume: number;
     Speed: number;
     Tone: number;
@@ -151,6 +162,23 @@ export class CeVIOService implements CeVIOServicePort {
                 `Failed to set emotion: ${emotionName}. ${error instanceof Error ? error.message : String(error)}`
             );
         }
+    }
+
+    getTextDuration(cast: string, text: string): number {
+        this.setCast(cast);
+        return this.talker.GetTextDuration(text);
+    }
+
+    getPhonemes(cast: string, text: string): PhonemeData[] {
+        this.setCast(cast);
+        const phonemes = this.talker.GetPhonemes(text);
+        const count = phonemes.Length;
+        const result: PhonemeData[] = [];
+        for (let i = 0; i < count; i++) {
+            const data = phonemes.At(i);
+            result.push({ phoneme: data.Phoneme, startTime: data.StartTime, endTime: data.EndTime });
+        }
+        return result;
     }
 
     getAvailableCasts(): string[] {
